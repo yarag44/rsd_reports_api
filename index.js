@@ -20,7 +20,7 @@ app.use(express.json());
 
 //ROUTES
 
-app.get("/report",async (req,res) => {
+app.get("/",async (req,res) => {
 
     res.send("Hello World");
 
