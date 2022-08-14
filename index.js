@@ -2,6 +2,9 @@ const express = require("express");
 
 const app= express();
 
+const port = process.env.PORT | 3000;
+
+
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -12,7 +15,17 @@ const pool = require("./db");
 
 app.use(express.json());
 
+
+
+
 //ROUTES
+
+app.get("/report",async (req,res) => {
+
+    res.send("Hello World");
+
+});
+
 
 app.get("/report",async (req,res) => {
 
@@ -80,7 +93,7 @@ app.get("/report",async (req,res) => {
 });
 
 
-app.listen (3000, () => {
+app.listen (port, () => {
 
     console.log("Server Running on port 3000");
 
