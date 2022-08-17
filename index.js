@@ -54,10 +54,12 @@ app.get("/report",async (req,res) => {
         " INNER JOIN resident_pays_user_links res_pay_user ON res_pay.id=res_pay_user.resident_pay_id " +
         " INNER JOIN residents_user_links res_user ON res_user.user_id=res_pay_user.user_id " +
         " INNER JOIN residents_residential_links res_residencial ON res_residencial.resident_id = res_user.resident_id " +
-        " WHERE res_pay.Is_Paid = true " +
+        " INNER JOIN resident_pays_catalog_pay_links res_cat ON res_cat.resident_pay_id = res_pay.id " + 
+        " WHERE res_pay.Is_Paid = true AND res_cat.catalog_pay_id IN (1,3) " +
         " ) B ON A.resident_id=B.res_id " +
         " WHERE A.residential_id=" + residential.toString() +
         " GROUP BY A.name, A.ResidentName,A.house,b.year,b.month " +
+        " Order bY A.ResidentName " +
         " ) Pays WHERE Pays.year > 0','select m from generate_series(1,12) m' ) as ( " +
         " ResidentName varchar(2000), " +
         " Residential varchar(2000), " +
