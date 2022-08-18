@@ -31,13 +31,39 @@ app.get("/report",async (req,res) => {
 
     try {
         
-        const residential=req.query.Residential;
+        const residential = req.query.Residential;
+
+        const reporttype = req.query.ReportType;
+
+        //res.send({message:'ReportType ' + reporttype }); 
+        
+        if(!reporttype)  
+        {
+            res.send({message:'ReportType parameter is required*'}); 
+            return;
+        }
+
+        if(parseInt(reporttype) === 0)
+        {
+            res.send({message:'ReportType parameter is required*'}); 
+            return;
+        }
+
 
         if(!residential)  
         {
             res.send({message:'Residential parameter is required*'}); 
             return;
         }
+
+        if(parseInt(residential) === 0)  
+        {
+            res.send({message:'Residential parameter is required*'}); 
+            return;
+        }
+
+
+
         let query = "select *,(coalesce(\"Jan\",0) + coalesce(\"Feb\",0) + coalesce(\"Mar\",0) + coalesce(\"Apr\",0) + coalesce(\"May\",0) + coalesce(\"Jun\",0) + coalesce(\"Jul\",0) + coalesce(\"Aug\",0) + coalesce(\"Sep\",0) + coalesce(\"Oct\",0) + coalesce(\"Nov\",0) + coalesce(\"Dec\",0)) yearamount " +
         " from crosstab( " +
         " 'SELECT * FROM ( " +
@@ -49,13 +75,18 @@ app.get("/report",async (req,res) => {
         " inner join residentials residential on residential.id=res_residential.residential_id " +
         " ) A " +
         " LEFT JOIN ( " +
-        " SELECT res_pay.id,res_user.resident_id res_id,res_pay.year,res_pay.month,res_pay.amount " +
+        (
+        parseInt(reporttype) === 1 ? 
+        " SELECT res_pay.id,res_user.resident_id res_id,res_pay.year,res_pay.month,res_pay.amount " 
+            : 
+        " SELECT res_pay.id,res_user.resident_id res_id,date_part(''year'', res_pay.created_at) as year,date_part(''month'', res_pay.created_at) as month,res_pay.amount " 
+        ) +
         " FROM resident_pays res_pay " +
         " INNER JOIN resident_pays_user_links res_pay_user ON res_pay.id=res_pay_user.resident_pay_id " +
         " INNER JOIN residents_user_links res_user ON res_user.user_id=res_pay_user.user_id " +
         " INNER JOIN residents_residential_links res_residencial ON res_residencial.resident_id = res_user.resident_id " +
         " INNER JOIN resident_pays_catalog_pay_links res_cat ON res_cat.resident_pay_id = res_pay.id " + 
-        " WHERE res_pay.Is_Paid = true AND res_cat.catalog_pay_id IN (1,3) " +
+        " WHERE res_pay.Is_Paid = true AND res_cat.catalog_pay_id IN (" + (parseInt(reporttype) === 1 ? "1,3" : "2") + ") " +
         " ) B ON A.resident_id=B.res_id " +
         " WHERE A.residential_id=" + residential.toString() +
         " GROUP BY A.name, A.ResidentName,A.house,b.year,b.month " +
@@ -82,7 +113,7 @@ app.get("/report",async (req,res) => {
           
        const result = await pool.query(query);
 
-       console.log(result);
+       console.log(query);
 
        res.json(result.rows);
 
