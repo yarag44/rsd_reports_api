@@ -9,7 +9,7 @@ const pool = new Pool({
     port: "5432",
     min: 0,
     max: 1,
-    idleTimeoutMillis: 30000000,
+    idleTimeoutMillis: 1,
     createTimeoutMillis: 30000000,
     acquireTimeoutMillis: 30000000,
     propagateCreateError: false,
