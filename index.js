@@ -35,8 +35,27 @@ app.get("/report",async (req,res) => {
 
         const reporttype = req.query.ReportType;
 
+        const currency = req.query.Currency;
+
+
         //res.send({message:'ReportType ' + reporttype }); 
         
+        if(!currency)  
+        {
+            res.send({message:'Currency parameter is required*'}); 
+            return;
+        }
+
+        if(parseInt(currency) === 0)
+        {
+            res.send({message:'Currency parameter is required*'}); 
+            return;
+        }
+
+
+
+
+
         if(!reporttype)  
         {
             res.send({message:'ReportType parameter is required*'}); 
@@ -48,6 +67,10 @@ app.get("/report",async (req,res) => {
             res.send({message:'ReportType parameter is required*'}); 
             return;
         }
+
+
+
+
 
 
         if(!residential)  
@@ -86,7 +109,9 @@ app.get("/report",async (req,res) => {
         " INNER JOIN residents_user_links res_user ON res_user.user_id=res_pay_user.user_id " +
         " INNER JOIN residents_residential_links res_residencial ON res_residencial.resident_id = res_user.resident_id " +
         " INNER JOIN resident_pays_catalog_pay_links res_cat ON res_cat.resident_pay_id = res_pay.id " + 
+        " INNER JOIN resident_pays_cat_moneda_links res_currency ON res_pay.id=res_currency.resident_pay_id " +
         " WHERE res_pay.Is_Paid = true AND res_cat.catalog_pay_id IN (" + (parseInt(reporttype) === 1 ? "1,3" : (parseInt(reporttype) === 2) ? "2,4" : "6,7" ) + ") " +
+        " AND res_currency.cat_currency_id=" + currency.toString() +
         " ) B ON A.resident_id=B.res_id " +
         " WHERE A.residential_id=" + residential.toString() +
         " GROUP BY A.name, A.ResidentName,A.house,b.year,b.month " +
@@ -113,7 +138,7 @@ app.get("/report",async (req,res) => {
           
        const result = await pool.query(query);
 
-       console.log(query);
+       //console.log(query);
 
        res.json(result.rows);
 
